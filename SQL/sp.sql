@@ -1,4 +1,3 @@
--- SP debitos pendientes domiciliado y vencidos
 DELIMITER $$
 
 CREATE PROCEDURE pa_mdp_i_debitos_pendientes(
@@ -7,12 +6,18 @@ CREATE PROCEDURE pa_mdp_i_debitos_pendientes(
     OUT mensaje VARCHAR(255) -- Mensaje descriptivo
 )
 BEGIN
+
+	DECLARE v_fecha_actual DATE;
+    DECLARE v_filas_insertadas INT DEFAULT 0;
+    
     -- Manejo de errores
     DECLARE EXIT HANDLER FOR SQLEXCEPTION 
     BEGIN
         SET codigo = 1;
         SET mensaje = 'Error al insertar datos en emi_t_debito_pendientes';
     END;
+    
+    SET v_fecha_actual = DATE(NOW());
     
     -- Insertar registros en emi_t_debito_pendientes combinando domiciliados y vencidos
     INSERT INTO emi_t_debito_pendientes (
@@ -40,11 +45,11 @@ BEGIN
         db_batch_id
     )
     SELECT 
-        a.mp_pan, a.mp_cuenta, a.mp_identcli, b.p1_numdoc, a.mp_status,
+        a.mp_pan, a.mp_cuenta, a.mp_identcli, b.p1_numdoc, h.s_cod_es,
 		d.lc_ctargo1, d.lc_clamon1, d.lc_ctargo2, d.lc_clamon2, 
         e.m_pago_min, e.m_pago_contado, e.d_fec_top_pag, f.cu_forpago,
         g.ex_fecext, g.ex_impmin, l.ic_impago, l.ic_numrecimp,
-        m.dr_fecvenmov, 'Domiciliado', NOW(), 'pendiente', batch_id
+        m.dr_fecvenmov, 'Domiciliado', v_fecha_actual, 'pendiente', batch_id
     FROM 
         medio_pago_tarjeta_mp a
         INNER JOIN datos_comunes_personas_p1 b ON a.mp_identcli = b.p1_identcli
@@ -54,25 +59,26 @@ BEGIN
         INNER JOIN contrato_impagado_ic l ON a.mp_cuenta = l.ic_cuenta 
         INNER JOIN desgloce_por_linea_ultimo_recibido_dr m ON a.mp_cuenta = m.dr_cuenta
         INNER JOIN emi_t_ext_cred_ex g ON a.mp_cuenta = g.ex_cuenta
+        INNER JOIN ods_estado_cuenta_tarjeta h ON a.mp_pan = h.s_pan
     WHERE 
         a.mp_calpart = 'TI' -- sea titular
         AND b.p1_indrepos = 'S' -- sea domiciliado
-        AND a.mp_status = 'A' -- un campo que se agrego (para saber si la tarjeta esta Activa o Inactiva)
-        AND e.d_fec_top_pag = DATE(NOW()) -- validar que la fecha de tope sea igual a la fecha del proceso
+        AND h.s_cod_es = '000000000-2-1-5' -- un campo que se agrego (para saber si la tarjeta esta Activa o Inactiva)
+        AND DATE(e.d_fec_top_pag) = v_fecha_actual  -- validar que la fecha de tope sea igual a la fecha del proceso
 		AND g.ex_impmin > 0 -- validar por cada dédito  que el campo IMPMIN no haya realizado el pago ya que si el valor es igual a 0 no se debe realizar el debito.
         AND (
             (f.cu_forpago = '03' AND e.m_pago_min > 0) --  validar si el cliente tiene el valor 03 en FORPAGO se debe considerar que el saldo campo pago minimo sea mayor a cero
             OR
             (f.cu_forpago = '04' AND e.m_pago_contado > 0) -- - validar si el cliente tiene el valor 04 en FORPAGO considerar que el saldo del campos m_pago_contado sea mayor 0
         )
-        AND DATE(NOW()) <= DATE(g.ex_fecext) -- El proceso se debe realizar hasta la fecha de cierre del siguiente ciclo de facturación(FECHA DE CORTE-> FECEXT)
+        AND v_fecha_actual <= DATE(g.ex_fecext) -- El proceso se debe realizar hasta la fecha de cierre del siguiente ciclo de facturación(FECHA DE CORTE-> FECEXT)
     UNION ALL
     SELECT 
-        a.mp_pan, a.mp_cuenta, a.mp_identcli, b.p1_numdoc, a.mp_status,
+        a.mp_pan, a.mp_cuenta, a.mp_identcli, b.p1_numdoc, h.s_cod_es,
         d.lc_ctargo1, d.lc_clamon1, d.lc_ctargo2, d.lc_clamon2, 
         e.m_pago_min, e.m_pago_contado, e.d_fec_top_pag, f.cu_forpago,
         g.ex_fecext, g.ex_impmin, l.ic_impago, l.ic_numrecimp,
-        m.dr_fecvenmov, 'Vencida', NOW(), 'pendiente', batch_id
+        m.dr_fecvenmov, 'Vencida', v_fecha_actual, 'pendiente', batch_id
     FROM 
         medio_pago_tarjeta_mp a
         INNER JOIN datos_comunes_personas_p1 b ON a.mp_identcli = b.p1_identcli
@@ -83,30 +89,29 @@ BEGIN
         INNER JOIN venta_cartera_castigada k ON a.mp_cuenta = k.cuenta
         INNER JOIN contrato_impagado_ic l ON a.mp_cuenta = l.ic_cuenta 
         INNER JOIN desgloce_por_linea_ultimo_recibido_dr m ON a.mp_cuenta = m.dr_cuenta
+        INNER JOIN ods_estado_cuenta_tarjeta h ON a.mp_pan = h.s_pan
     WHERE
+		-- reglas de negocio
 		a.mp_calpart = 'TI' -- sea titular 
-		AND b.p1_indrepos <> 'S'
-		AND DATE(NOW()) > e.d_fec_top_pag AND m.dr_fecvenmov > DATE(NOW()) --  validar que si el cliente no tiene activo el servicio de domiciliados el proceso debe ejecutar al siguiente día de la fecha de tope el campo (FECVENMOV) sea mayor a la fecha de ejecución del proceso(Proceso)
-        AND l.ic_numrecimp >= 1 -- Pago vencido (al menos un recibo impago) NÚMERO DE RECIBOS IMPAGADOS
-        AND g.ex_fecext > e.d_fec_top_pag -- Fecha de ciclo de facturación posterior a la fecha tope de pago
-        AND (d.lc_ctargo1 IS NOT NULL AND d.lc_ctargo1 != '') -- Validar que lc_ctargo1 y lc_ctargo2 no estén vacíos y la cadena este vacia son la cuenta a debitar
-        AND (d.lc_ctargo2 IS NOT NULL AND d.lc_ctargo2 != '') -- Validar que lc_ctargo1 y lc_ctargo2 no estén vacíos y la cadena este vacia son la cuentas a debitar
+		AND b.p1_indrepos = 'N' -- cliento no domiciliado
+        AND l.ic_impago  > 0 
         AND k.estado = '021'  -- Excluir tarjetas con estado "VENTA de CARTERA CASTIGADA" (020)
-        AND l.ic_impago > 0  -- Solo clientes con IMPAGO > 0 
-        AND g.ex_impmin > 0 -- No procesar si el saldo a pagar ya está cubierto
-        AND (
-            (e.m_deuda_vcda > 0 AND NOW() < e.d_fec_top_pag) -- Condición A: Saldo de deuda vencida mayor a 0 y la fecha de proceso menor a la fecha de tope de pago
-            OR (e.m_pago_min > 0 AND NOW() > e.d_fec_top_pag) -- Condición B: Pago mínimo mayor a 0 y la fecha de proceso es mayor a la fecha tope de pago
-            OR (l.ic_numrecimp = 0 AND e.m_pago_min) -- Condición C: Pago mínimo mayor a 0, sin pagos vencidos
+        AND (d.lc_ctargo1 IS NOT NULL AND d.lc_ctargo1 != '') -- Validar que lc_ctargo1  no estén vacíos y la cadena este vacia son la cuenta a debitar
+        AND (d.lc_ctargo2 IS NOT NULL AND d.lc_ctargo2 != '') -- Validar que lc_ctargo2 no estén vacíos y la cadena este vacia son la cuentas a debitar
+        -- caso
+        AND(
+			(e.m_deuda_vcda > 0 AND DATE(e.d_fec_top_pag) < v_fecha_actual) -- Caso a: Valor Vencido de Clientes con 1 Pago Vencido en adelante antes de la fecha tope de pago
+            OR(e.m_pago_min > 0 AND v_fecha_actual > DATE(e.d_fec_top_pag)) -- Caso b: Valor Pago Mínimo de Clientes con 1 Pago Vencido en adelante desde la fecha tope de pago
+            OR(e.m_pago_min > 0 AND v_fecha_actual >= DATE(g.ex_fecext)) -- Caso c: Valor Pago Mínimo de Clientes con 0 Pagos Vencidos y que aún no han pagado, estando a N días de cerrar el ciclo
+            OR(e.m_deuda_vcda >= e.m_pago_min) -- Caso d: Valor Mínimo de clientes vencidos o parciales que estén próximos a cerrar el Ciclo de Facturación
         )
-        AND e.m_deuda_vcda <= e.m_pago_min  -- Validación D: Deuda vencida menor o igual a pago mínimo
-        AND e.m_deuda_vcda < g.ex_impmin; -- Si el cliente tiene saldo menor al monto de débito, permitir débito parcial
-
-    
+        AND DATE(m.dr_fecvenmov) > v_fecha_actual; -- Validar que el campo “FECVENMOV” sea mayor a la fecha de ejecución del proceso.
+        
+	SET v_filas_insertadas = ROW_COUNT();  
     -- Validar si se insertaron registros
-    IF ROW_COUNT() > 0 THEN
+    IF v_filas_insertada > 0 THEN
         SET codigo = 0;
-        SET mensaje = CONCAT('Se insertaron ', ROW_COUNT(), ' registros correctamente.');
+        SET mensaje = CONCAT('Se insertaron ', v_filas_insertada, ' registros correctamente.');
     ELSE
         SET codigo = 2;
         SET mensaje = 'No se insertaron registros.';
@@ -115,6 +120,7 @@ BEGIN
 END $$
 
 DELIMITER ;
+
 
 
 

@@ -340,4 +340,28 @@ CREATE TABLE emi_tc_m_parametro (
 );
 
 
+  CREATE TABLE venta_cartera_castigada (
+    id INT AUTO_INCREMENT PRIMARY KEY,          -- Identificador único
+    pan VARCHAR(16) NOT NULL,                  -- Número de tarjeta (PAN)
+    cuenta VARCHAR(20) NOT NULL,               -- Número de cuenta
+    estado CHAR(3) NOT NULL,                   -- Estado (020 o 021)
+    fecha_venta DATE NOT NULL,                 -- Fecha de venta
+    monto DECIMAL(15, 2) NOT NULL,             -- Monto de la cartera
+    descripcion TEXT,                          -- Descripción adicional (opcional)
+    CHECK (estado IN ('020', '021'))           -- Restricción para el campo estado
+);
+
+
+
+CREATE TABLE ods_estado_cuenta_tarjeta (
+    i_id_estado INT PRIMARY KEY,
+    s_cod_estado VARCHAR(50),
+    s_estado VARCHAR(100),
+    s_cod_sub_estado VARCHAR(50),
+    s_sub_estado VARCHAR(100),
+    s_descripcion TEXT,
+    i_id_estado_aux INT,
+    s_pan VARCHAR(12),
+    s_cod_es VARCHAR(16)
+);
 
