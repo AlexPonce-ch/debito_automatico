@@ -1,6 +1,6 @@
 DELIMITER $$
 
-CREATE PROCEDURE pa_mdp_i_debitos_pendientes(
+CREATE PROCEDURE pa_mdp_i_debito_pendiente(
 	IN batch_id VARCHAR(36), -- nuevo campo uuid
     OUT codigo INT,         -- Código de error/éxito
     OUT mensaje VARCHAR(255) -- Mensaje descriptivo
@@ -20,7 +20,7 @@ BEGIN
     SET v_fecha_actual = DATE(NOW());
     
     -- Insertar registros en emi_t_debito_pendientes combinando domiciliados y vencidos
-    INSERT INTO emi_t_debito_pendientes (
+    INSERT INTO emi_t_debito_pendiente (
         db_pan, 
         db_cuenta, 
         db_identcli, 
@@ -124,7 +124,7 @@ DELIMITER ;
 
 
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_insertar_batch_proceso`(OUT p_batch_id VARCHAR(36))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_i_batch_proceso`(OUT p_batch_id VARCHAR(36))
 BEGIN
     DECLARE exit HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -148,7 +148,7 @@ END
 
 
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_ObtenerParametro`(IN p_pa_id INT, OUT p_pa_valor TEXT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_obtener_parametro`(IN p_pa_id INT, OUT p_pa_valor TEXT)
 BEGIN
     DECLARE v_pa_valor TEXT;
 

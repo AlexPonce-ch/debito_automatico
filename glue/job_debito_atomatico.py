@@ -68,7 +68,7 @@ try:
             # Llamar al procedimiento para insertar batch_proceso y obtener batch_id
             print("Llamando al procedimiento almacenado sp_insertar_batch_proceso...")
             cursor.execute("SET @batch_id = NULL;")
-            cursor.execute("CALL sp_insertar_batch_proceso(@batch_id);")
+            cursor.execute("CALL sp_i_batch_proceso(@batch_id);")
             cursor.execute("SELECT @batch_id;")
             batch_id = cursor.fetchone()[0]
 
@@ -91,7 +91,7 @@ try:
                 codigo = 0
                 mensaje = ' '
                 args_debito = [batch_id, codigo, mensaje]  # Asegúrate de pasar 3 argumentos
-                cursor.callproc("pa_mdp_i_debitos_pendientes", args_debito)
+                cursor.callproc("pa_mdp_i_debito_pendiente", args_debito)
 
                 # Obtener los valores de salida del procedimiento
                 for result in cursor.stored_results():
