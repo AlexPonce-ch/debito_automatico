@@ -1,4 +1,4 @@
-CREATE TABLE `emi_t_debito_pendiente` (
+CREATE TABLE `emi_t_debito_diario` (
   `db_id` BIGINT NOT NULL AUTO_INCREMENT,
   `db_pan` VARCHAR(22) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
   `db_cuenta` VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,

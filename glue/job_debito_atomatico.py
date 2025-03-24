@@ -14,17 +14,15 @@ conexion = mysql.connector.connect(
 cursor = conexion.cursor()
 
 try:
-    
-    # TRUNCATE la tabla pa_mdp_i_debitos_pendientes para limpiarla antes de procesar
-    print("Limpiando la tabla emi_t_debito_pendientes...")
-    cursor.execute("TRUNCATE TABLE emi_t_debito_pendientes;")
-    print("Tabla emi_t_debito_pendientes truncada.")
-    
-    
+    # Llamar al procedimiento almacenado para truncar la tabla emi_t_debito_diario
+    print("Ejecutando procedimiento para limpiar la tabla emi_t_debito_diario...")
+    cursor.callproc("sp_truncate_emi_t_debito_diario")
+    print("Tabla emi_t_debito_diario truncada correctamente.")
+
     # Obtener el parámetro de configuración (pa_valor) llamando al procedimiento almacenado
     pa_id = 141
     args = [pa_id, ""]  # Placeholder para el parámetro OUT
-    result_args = cursor.callproc("sp_ObtenerParametro", args)
+    result_args = cursor.callproc("pa_obtener_parametro", args)
 
     # El valor de salida estará en el segundo elemento de result_args
     pa_valor = result_args[1]
@@ -68,7 +66,7 @@ try:
             # Llamar al procedimiento para insertar batch_proceso y obtener batch_id
             print("Llamando al procedimiento almacenado sp_insertar_batch_proceso...")
             cursor.execute("SET @batch_id = NULL;")
-            cursor.execute("CALL sp_i_batch_proceso(@batch_id);")
+            cursor.execute("CALL pa_i_batch_proceso(@batch_id);")
             cursor.execute("SELECT @batch_id;")
             batch_id = cursor.fetchone()[0]
 
@@ -76,7 +74,7 @@ try:
                 print(f"Batch ID obtenido: {batch_id}")
 
                 # Verificar si realmente se insertó el batch_id en la tabla
-                cursor.execute("SELECT * FROM batch_procesos WHERE batch_id = %s;", (batch_id,))
+                cursor.execute("SELECT * FROM emi_t_dba_batch WHERE batch_id = %s;", (batch_id,))
                 if cursor.fetchone():
                     print(f"Registro {batch_id} confirmado en batch_procesos.")
                 else:
@@ -94,9 +92,7 @@ try:
                 cursor.callproc("pa_mdp_i_debito_pendiente", args_debito)
 
                 # Obtener los valores de salida del procedimiento
-                for result in cursor.stored_results():
-                    codigo, mensaje = result.fetchone()
-                print(f"Código: {codigo}, Mensaje: {mensaje}")
+                
 
                 if codigo == 0:
                     print("Proceso completado correctamente.")
