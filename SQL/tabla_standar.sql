@@ -1,38 +1,39 @@
-CREATE TABLE `emi_t_debito_diario` (
-  `db_id` BIGINT NOT NULL AUTO_INCREMENT,
-  `db_pan` VARCHAR(22) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
-  `db_cuenta` VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
-  `db_identcli` VARCHAR(25) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
-  `db_numdoc` VARCHAR(25) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
-  `db_status` VARCHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
-  `db_pago_min` DECIMAL(17,2) NOT NULL,
-  `db_pago_contado` DECIMAL(17,2) NOT NULL,
-  `db_d_fec_top_pag` DATE NOT NULL, 
-  `db_cu_forpago` INT NOT NULL, 
-  `db_fecext` DATE NOT NULL, 
-  `db_impmin` DECIMAL(17,2) NOT NULL, 
-  `db_ic_impago` DECIMAL(17,2) NOT NULL,
-  `db_ic_numrecimp` DECIMAL(17,2) NOT NULL,
-  `db_dr_fecvenmov` DATE NOT NULL,
-  `db_tip_deb` VARCHAR(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
-  `db_processdate` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  `db_estado_actual` VARCHAR(20) DEFAULT 'pendiente',
-  `db_batch_id` VARCHAR(36) NOT NULL,
-  PRIMARY KEY (`db_id`),
-  CONSTRAINT `fk_batch` 
-    FOREIGN KEY (`db_batch_id`)  
-    REFERENCES `emi_t_dba_bacth `(`batch_id`)  
-    ON DELETE CASCADE 
+CREATE TABLE emi_t_batch_proceso (
+  bp_id INT NOT NULL AUTO_INCREMENT,
+  bp_batch_id VARCHAR(36) COLLATE utf8mb4_general_ci NOT NULL,
+  bp_estado VARCHAR(20) COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'EN PROCESO',
+  bp_fecha_inicio DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  bp_fecha_fin DATETIME DEFAULT NULL,
+  bp_total_registros INT DEFAULT 0,
+  bp_registros_procesados INT DEFAULT 0,
+  bp_registros_fallidos INT DEFAULT 0,
+  bp_mensaje_error TEXT COLLATE utf8mb4_general_ci,
+  CONSTRAINT pk_emi_t_batch_proceso PRIMARY KEY (bp_id),
+  CONSTRAINT uq_emi_t_batch_id UNIQUE (bp_batch_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-CREATE TABLE `emi_t_dba_batch` (
-    `id` INT AUTO_INCREMENT PRIMARY KEY,
-    `batch_id` VARCHAR(36) NOT NULL UNIQUE,  -- UUID único para identificar cada batch
-    `estado` VARCHAR(20) NOT NULL DEFAULT 'EN PROCESO',
-    `fecha_inicio` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- Inicio del procesamiento
-    `fecha_fin` DATETIME NULL,  -- Se llena cuando el batch se completa o falla
-    `total_registros` INT DEFAULT 0,  -- Cantidad de registros en el batch
-    `registros_procesados` INT DEFAULT 0,  -- Registros efectivamente procesados
-    `registros_fallidos` INT DEFAULT 0,  -- Registros con error
-    `mensaje_error` TEXT NULL  -- En caso de fallos, se guarda el error
+
+CREATE TABLE emi_t_debito_diario (
+  dd_id BIGINT NOT NULL AUTO_INCREMENT,
+  dd_pan VARCHAR(22) COLLATE utf8mb4_general_ci NOT NULL,
+  dd_cuenta VARCHAR(30) COLLATE utf8mb4_general_ci NOT NULL,
+  dd_identcli VARCHAR(25) COLLATE utf8mb4_general_ci NOT NULL,
+  dd_numdoc VARCHAR(25) COLLATE utf8mb4_general_ci NOT NULL,
+  dd_status VARCHAR(20) COLLATE utf8mb4_general_ci NOT NULL,
+  dd_pago_min DECIMAL(17,2) NOT NULL DEFAULT 0.00,
+  dd_pago_contado DECIMAL(17,2) NOT NULL DEFAULT 0.00,
+  dd_fec_top_pag DATE NOT NULL,
+  dd_cu_forpago INT NOT NULL,
+  dd_fecext DATE NOT NULL,
+  dd_impmin DECIMAL(17,2) NOT NULL DEFAULT 0.00,
+  dd_ic_impago DECIMAL(17,2) NOT NULL DEFAULT 0.00,
+  dd_ic_numrecimp DECIMAL(17,2) NOT NULL DEFAULT 0.00,
+  dd_fecvenmov DATE NOT NULL,
+  dd_tip_deb VARCHAR(50) COLLATE utf8mb4_general_ci NOT NULL,
+  dd_processdate DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  dd_estado_actual VARCHAR(20) COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'pendiente',
+  dd_batch_id VARCHAR(36) COLLATE utf8mb4_general_ci NOT NULL,
+  CONSTRAINT pk_emi_t_debito_diario PRIMARY KEY (dd_id),
+  CONSTRAINT fk_debito_diario_batch FOREIGN KEY (dd_batch_id)
+    REFERENCES emi_t_batch_proceso (bp_batch_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
