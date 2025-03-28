@@ -1,3 +1,6 @@
+use ods_maestro_saldo;
+
+
 INSERT INTO ods_estado_cuenta_tarjeta (
     i_id_estado, s_cod_estado, s_estado, s_cod_sub_estado, 
     s_sub_estado, s_descripcion, i_id_estado_aux, s_pan, s_cod_es
@@ -99,9 +102,9 @@ INSERT INTO cuenta_medio_pago_cu (
 
 CREATE TABLE emi_maestro_cartera_diaria (
   i_num_cuenta VARCHAR(12) NOT NULL,
-  m_pago_min DECIMAL(19,4) NOT NULL,
-  m_pago_contado DECIMAL(19,4) NOT NULL,
-  m_deuda_vcda DECIMAL(19,4) DEFAULT NULL,
+  m_pago_min DECIMAL(17,2) NOT NULL,
+  m_pago_contado DECIMAL(17,2) NOT NULL,
+  m_deuda_vcda DECIMAL(17,2) DEFAULT NULL,
   d_fec_top_pag DATETIME DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -173,7 +176,7 @@ INSERT INTO contrato_impagado_ic (
 CREATE TABLE emi_t_ext_cred_ex (
   ex_cuenta VARCHAR(12) NOT NULL,
   ex_fecext DATE NOT NULL,
-  ex_impmin DECIMAL(19,4) NOT NULL
+  ex_impmin DECIMAL(17,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 INSERT INTO emi_t_ext_cred_ex (
