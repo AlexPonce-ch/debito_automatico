@@ -41,3 +41,27 @@ CREATE TABLE emi_t_mdp_debito_pendiente(
   CONSTRAINT fk_debito_diario_batch FOREIGN KEY (dp_batch_id)
     REFERENCES emi_t_batch_proceso (bp_batch_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+CREATE TABLE `emi_t_mdp_debito_pendiente` (
+  dp_id BIGINT NOT NULL AUTO_INCREMENT,
+  dp_pan VARCHAR(22) COLLATE utf8mb4_general_ci NOT NULL,
+  dp_cuenta VARCHAR(30) COLLATE utf8mb4_general_ci NOT NULL,
+  dp_identcli VARCHAR(8) COLLATE utf8mb4_general_ci NOT NULL,
+  dp_pago_min DECIMAL(17,2) DEFAULT 0,
+  dp_pago_contado DECIMAL(17,2) DEFAULT 0,
+  dp_cu_forpago INT DEFAULT NULL,
+  dp_m_deuda_vcda DECIMAL(17,2) NOT NULL,
+  dp_ic_numrecimp INT NOT NULL,
+  dp_fec_top_pag DATE NOT NULL,
+  dp_fecext DATE NOT NULL,
+  dp_dr_fecvenmov DATE NOT NULL,
+  dp_s_descripcion VARCHAR(25) NOT NULL,
+  dp_impfac_total DECIMAL(17,2) NOT NULL,
+  dp_total_debitar DECIMAL(17,2) NOT NULL,
+  dp_cliente VARCHAR(255) NOT NULL,
+  dp_tip_deb CHAR(4) NOT NULL,
+  dp_est_proce VARCHAR(10) NOT NULL,
+  dp_processdate INT NOT NULL,
+  PRIMARY KEY (`dp_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
