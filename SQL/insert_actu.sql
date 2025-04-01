@@ -51,11 +51,11 @@ INSERT INTO medio_pago_tarjeta_mp (
 ('659146979775', '48004059', 'TI', '570557143345', 'A', 17),
 
 -- No domiciliados (indrepos = 'N')
-('669146979776', '49112233', 'BE', '580557143346', 'I', 18),
-('679146979777', '50223344', 'BE', '590557143347', 'I', 18),
-('689146979778', '51334455', 'BE', '600557143348', 'I', 18),
-('699146979779', '52445566', 'BE', '610557143349', 'I', 18),
-('709146979780', '53556677', 'BE', '620557143350', 'I', 18);
+('669146979776', '49112233', 'TI', '580557143346', 'I', 18),
+('679146979777', '50223344', 'TI', '590557143347', 'I', 18),
+('689146979778', '51334455', 'TI', '600557143348', 'I', 18),
+('699146979779', '52445566', 'TI', '610557143349', 'I', 18),
+('709146979780', '53556677', 'TI', '620557143350', 'I', 18);
 
 
 INSERT INTO desgloce_por_linea_ultimo_recibido_dr (
@@ -196,7 +196,82 @@ INSERT INTO emi_t_ext_cred_ex (
 
 
 
+INSERT INTO datos_personas_fisica_p2 (
+    p2_codent, p2_identcli, p2_tiporeg, p2_nombre, p2_apelli1, p2_apelli2, 
+    p2_codpaisnct, p2_nompaisnct, p2_codpaisnac, p2_nompaisnac, 
+    p2_codpaisres, p2_nompaisres, p2_sexper, p2_indestciv, p2_regecon, 
+    p2_indtracor, p2_fecnac, p2_codprof, p2_fecfelicita, p2_tipfelicita, 
+    p2_fecalta, p2_fecbaja, p2_processdate
+) VALUES
+-- Registro 1
+('0010', '44445555', 'PF', 'Alexander Matias', 'García', 'López', 
+724, 'Ecuador', 724, 'Ecuador', 
+724, 'Ecuador', 'M', 'C', 'S', 
+'01', '1985-05-15', 'ING001', '0515', 'D', 
+'2010-06-20', '2010-06-20', 20230501),
 
+-- Registro 2
+('0010', '45429156', 'PF', 'María', 'Rodríguez', 'Sánchez', 
+724, 'Ecuador', 724, 'Ecuador', 
+724, 'Ecuador', 'F', 'S', 'N', 
+'02', '1990-08-22', 'MED002', '0822', 'D', 
+'2015-03-10', '2010-06-20', 20230501),
+
+-- Registro 3
+('0010', '46004057', 'PF', 'Pedro Luis', 'Fernández', 'Gómez', 
+724, 'Ecuador', 724, 'Ecuador', 
+724, 'Ecuador', 'M', 'V', 'S', 
+'03', '1978-11-30', 'ARQ003', '1130', 'D', 
+'2008-09-05', '2010-06-20', 20230501),
+
+-- Registro 4
+('0010', '47479758', 'PF', 'Ana María', 'Martínez', 'Jiménez', 
+724, 'España', 724, 'España', 
+724, 'España', 'F', 'C', 'N', 
+'01', '1982-04-18', 'ADV004', '0418', 'D', 
+'2012-07-15', '2010-06-20', 20230501),
+
+-- Registro 5
+('0010', '48004059', 'PF', 'Luis Miguel', 'Pérez', 'Ruiz', 
+724, 'Ecuador', 724, 'Ecuador', 
+724, 'Ecuador', 'M', 'S', 'S', 
+'02', '1993-07-25', 'INF005', '0725', 'D', 
+'2018-02-28', '2010-06-20', 20230501),
+
+-- Registro 6
+('0010', '49112233', 'PF', 'Sofía', 'López', 'García', 
+724, 'Ecuador', 724, 'Ecuador', 
+724, 'Ecuador', 'F', 'D', 'N', 
+'03', '1975-09-12', 'DOC006', '0912', 'D', 
+'2005-11-10', '2010-06-20', 20230501),
+
+-- Registro 7
+('0010', '50223344', 'PF', 'Elein Ivette', 'Sánchez', 'Martín', 
+724, 'Ecuador', 724, 'España', 
+724, 'Ecuador', 'M', 'C', 'S', 
+'01', '1988-12-05', 'ING007', '1205', 'D', 
+'2013-04-22', '2010-06-20', 20230501),
+
+-- Registro 8
+('0010', '51334455', 'PF', 'Laura', 'Gómez', 'Fernández', 
+724, 'Ecuador', 724, 'Ecuador', 
+724, 'Ecuador', 'F', 'S', 'N', 
+'02', '1991-03-19', 'PSI008', '0319', 'D', 
+'2016-08-14', '2010-06-20', 20230501),
+
+-- Registro 9
+('0010', '52445566', 'PF', 'Javier', 'Ruiz', 'Pérez', 
+724, 'Ecuador', 724, 'Ecuador', 
+724, 'Ecuador', 'M', 'V', 'S', 
+'03', '1980-06-28', 'ECO009', '0628', 'D', 
+'2009-10-03', '2010-06-20', 20230501),
+
+-- Registro 10
+('0010', '53556677', 'PF', 'Elena María', 'Jiménez', 'Rodríguez', 
+724, 'Ecuador', 724, 'Ecuador', 
+724, 'Ecuador', 'F', 'C', 'N', 
+'01', '1987-01-14', 'DER010', '0114', 'D', 
+'2014-05-30', '2010-06-20', 20230501);
 
 
 

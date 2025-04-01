@@ -11,29 +11,33 @@ CREATE TABLE emi_t_batch_proceso (
   CONSTRAINT pk_emi_t_batch_proceso PRIMARY KEY (bp_id),
   CONSTRAINT uq_emi_t_batch_id UNIQUE (bp_batch_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-- nueva tabla final 
 
-
-CREATE TABLE emi_t_debito_diario (
-  dd_id BIGINT NOT NULL AUTO_INCREMENT,
-  dd_pan VARCHAR(22) COLLATE utf8mb4_general_ci NOT NULL,
-  dd_cuenta VARCHAR(30) COLLATE utf8mb4_general_ci NOT NULL,
-  dd_identcli VARCHAR(25) COLLATE utf8mb4_general_ci NOT NULL,
-  dd_numdoc VARCHAR(25) COLLATE utf8mb4_general_ci NOT NULL,
-  dd_status VARCHAR(20) COLLATE utf8mb4_general_ci NOT NULL,
-  dd_pago_min DECIMAL(17,2) NOT NULL DEFAULT 0.00,
-  dd_pago_contado DECIMAL(17,2) NOT NULL DEFAULT 0.00,
-  dd_fec_top_pag DATE NOT NULL,
-  dd_cu_forpago INT NOT NULL,
-  dd_fecext DATE NOT NULL,
-  dd_impmin DECIMAL(17,2) NOT NULL DEFAULT 0.00,
-  dd_ic_impago DECIMAL(17,2) NOT NULL DEFAULT 0.00,
-  dd_ic_numrecimp DECIMAL(17,2) NOT NULL DEFAULT 0.00,
-  dd_fecvenmov DATE NOT NULL,
-  dd_tip_deb VARCHAR(50) COLLATE utf8mb4_general_ci NOT NULL,
-  dd_processdate DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  dd_estado_actual VARCHAR(20) COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'pendiente',
-  dd_batch_id VARCHAR(36) COLLATE utf8mb4_general_ci NOT NULL,
-  CONSTRAINT pk_emi_t_debito_diario PRIMARY KEY (dd_id),
-  CONSTRAINT fk_debito_diario_batch FOREIGN KEY (dd_batch_id)
+CREATE TABLE emi_t_mdp_debito_pendiente(
+  dp_id BIGINT NOT NULL AUTO_INCREMENT,
+  dp_pan VARCHAR(22) COLLATE utf8mb4_general_ci NOT NULL,
+  dp_cuenta VARCHAR(30) COLLATE utf8mb4_general_ci NOT NULL,
+  dp_identcli VARCHAR(8) COLLATE utf8mb4_general_ci NOT NULL,
+  dp_pago_min DECIMAL(17,2) NOT NULL,
+  dp_pago_contado DECIMAL(17,2) NOT NULL,
+  dp_cu_forpago INT DEFAULT NULL,
+  dp_m_deuda_vcda DECIMAL(17,2) NOT NULL,
+  dp_ic_numrecimp DECIMAL(17,2) NOT NULL,
+  dp_fec_top_pag DATE NOT NULL,
+  dp_fecext DATE NOT NULL,
+  dp_dr_fecvenmov DATE NOT NULL,
+  dp_s_cod_es VARCHAR(15) NOT NULL,
+  dp_estado_c VARCHAR (10) NOT NULL,
+  dp_impfac_total DECIMAL(17,2) NOT NULL,
+  dp_total_debitar DECIMAL(17,2) NOT NULL,
+  dp_apelli1 VARCHAR(36) NOT NULL,
+  dp_apelli2 VARCHAR(36) NOT NULL,
+  dp_nombre VARCHAR(40) NOT NULL,
+  dp_tip_deb CHAR(4) NOT NULL,
+  dp_est_proce VARCHAR(10) NOT NULL,
+  dp_processdate INT NOT NULL 
+  dp_batch_id VARCHAR(36) COLLATE utf8mb4_general_ci NOT NULL,
+  CONSTRAINT pk_emi_t_mdp_debito_pendiente PRIMARY KEY (dp_id),
+  CONSTRAINT fk_debito_diario_batch FOREIGN KEY (dp_batch_id)
     REFERENCES emi_t_batch_proceso (bp_batch_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
